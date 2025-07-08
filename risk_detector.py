@@ -1,9 +1,8 @@
 # risk_detector.py
-import streamlit as st
-import pandas as pd
-import numpy as np
 import os
 from openai import OpenAI
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def detect_risk(text: str) -> str:
     prompt = (
@@ -11,12 +10,14 @@ def detect_risk(text: str) -> str:
         "리스크가 있는 경우 해당 문장을 직접 인용해서 표시해줘.\n\n"
         f"{text}"
     )
-    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    response = client.chat.completions.create(
+    
+    
+    chat_completion = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
-    return response.choices[0].message.content
+    
+    return chat_completion.choices[0].message.content
 
 def generate_response(user_question: str, content_context: str) -> str:
     prompt = (
