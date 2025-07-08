@@ -1,7 +1,7 @@
 # content_loader.py
-import streamlit as st
 import os
 from openai import OpenAI
+import streamlit as st
 import isodate
 import assemblyai as aai
 
@@ -10,15 +10,8 @@ from youtube_transcript_api import YouTubeTranscriptApi
 # pip install --upgrade google-api-python-client
 from googleapiclient.discovery import build
 
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 aai.settings.api_key = os.environ.get["ASSEMBLY_API_KEY"] 
-
-RSS_FEEDS = [
-    "https://seekingalpha.com/etfs-and-funds/etf-articles.xml",
-    "https://www.hani.co.kr/rss/economy/",
-    "https://www.boannews.com/media/news_rss.xml",
-    "https://www.yna.co.kr/finance/all?site=rss"
-]
-
 
 @st.cache_resource
 def get_youtube_api():
@@ -43,12 +36,12 @@ def summarize_with_gpt(title, description, transcript):
 
 이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
     
-    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    response = client.chat.completions.create(
+    
+    chat_completion = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
-    return response.choices[0].message.content
+    return chat_completion.choices[0].message.content
 
 def get_transcript(video_id, lang_list=["ko", "en"]):
     try:
@@ -61,6 +54,14 @@ def get_transcript(video_id, lang_list=["ko", "en"]):
 
 def fetch_filtered_rss_articles(keyword_list):
     results = []
+    
+    RSS_FEEDS = [
+    "https://seekingalpha.com/etfs-and-funds/etf-articles.xml",
+    "https://www.hani.co.kr/rss/economy/",
+    "https://www.boannews.com/media/news_rss.xml",
+    "https://www.yna.co.kr/finance/all?site=rss"
+    ]   
+
     for url in RSS_FEEDS:
         feed = feedparser.parse(url)
         for entry in feed.entries:
