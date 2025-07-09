@@ -7,6 +7,10 @@ import os
 import openai
 import isodate
 import assemblyai as aai
+import feedparser
+from youtube_transcript_api import YouTubeTranscriptApi
+# pip install --upgrade google-api-python-client
+from googleapiclient.discovery import build
 
 st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wide")
 
@@ -17,9 +21,39 @@ os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 openai.api_key = os.environ.get("OPENAI_API_KEY") 
+aai.settings.api_key = os.environ.get("ASSEMBLY_API_KEY")
 
+@st.cache_resource
+def get_youtube_api():
+    return build("youtube", "v3", developerKey=os.environ.get("YOUTUBE_KEY"))
 #client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
+def search_youtube_video(query):
+        search_response = youtube.search().list(
+            q=query,
+            part="snippet",
+            maxResults=10,
+            type="video"
+        ).execute()
+
+        for item in search_response["items"]:
+            video_id = item["id"]["videoId"]
+            title = item["snippet"]["title"]
+            url = f"https://www.youtube.com/watch?v={video_id}"
+
+            try:
+                #duration_sec = get_video_duration_seconds(video_id)
+                #if duration_sec >= 200:
+                    return [{
+                        "video_id": video_id,
+                        "title": title,
+                        "url": url
+                    }]
+            except Exception as e:
+                
+                print(f"⛔ duration 조회 실패: {e}")
+                return [] 
+            
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
 
 with tab1:
@@ -91,11 +125,12 @@ with tab1:
                            
 with tab2:
     st.title("🎬 YouTube 영상 크롤링")
-
+    youtube = get_youtube_api()
     keyword = st.text_input("🔍 YouTube 검색 키워드를 입력하세요 (예: ETF, 리스크, 위험, 변동성, 금융, 파생, 자산운용)")
 
     if keyword:
         with st.spinner("YouTube 영상 검색 중..."):
+            
             video = search_youtube_video(keyword)[0]
             if not video:
                 st.error("❌ 적합한 영상을 찾을 수 없습니다. 키워드를 바꿔보세요.")
@@ -124,7 +159,7 @@ with tab2:
                         prompt = f"""다음은 유튜브 영상의 제목과 설명과 자막이야:
 
                             제목: {title}
-                            설명: {description}
+                            설명: {desc}
                             자막: {result_transcript}
                             
                             이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
