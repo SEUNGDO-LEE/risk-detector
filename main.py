@@ -1,6 +1,12 @@
 #main.py
 import os
 import streamlit as st
+import pandas as pd
+import numpy as np
+import os
+from openai import OpenAI
+import isodate
+import assemblyai as aai
 
 st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wide")
 
@@ -9,8 +15,8 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 # API 키 설정
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
-
-from content_generator import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video, detect_risk
+os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
 
@@ -23,7 +29,31 @@ with tab1:
         st.write("📌 입력된 키워드 리스트:", raw_keywords)
     
         with st.expander("📡 RSS Feed 기반 관련 뉴스 수집"):
-            etf_articles = fetch_filtered_rss_articles(keyword_list)
+            
+            etf_articles = []
+    
+            RSS_FEEDS = [
+                "https://seekingalpha.com/etfs-and-funds/etf-articles.xml",
+                "https://www.hani.co.kr/rss/economy/",
+                "https://www.boannews.com/media/news_rss.xml",
+                "https://www.yna.co.kr/finance/all?site=rss"
+            ]   
+        
+            for url in RSS_FEEDS:
+                feed = feedparser.parse(url)
+                for entry in feed.entries:
+                    title = getattr(entry, "title", "")
+                    summary = getattr(entry, "summary", "") or getattr(entry, "description", "")
+                    content = title + " " + summary
+        
+                    if any(kw.lower() in content.lower() for kw in keyword_list):
+                        etf_articles.append({
+                            "title": title,
+                            "summary": summary,
+                            "link": getattr(entry, "link", "#")
+                        })
+
+            
             for art in etf_articles:
                 st.markdown(f"#### 🔗 [{art['title']}]({art['link']})")
                 st.write(art['summary'])
@@ -41,9 +71,18 @@ with tab1:
                             MAX_TOKENS = 3000
                             if len(all_summaries.split()) > MAX_TOKENS:
                                 all_summaries = " ".join(all_summaries.split()[:MAX_TOKENS])
-                            result = detect_risk(all_summaries)
+                                prompt = (
+                                    "다음 콘텐츠에서 사회적, 정치적, 윤리적 또는 법적 리스크 요소를 요약해줘. "
+                                    "리스크가 있는 경우 해당 문장을 직접 인용해서 표시해줘.\n\n"
+                                    f"{text}"
+                                )
+                                
+                                response = client.chat.completions.create(
+                                    model="gpt-4o",
+                                    messages=[{"role": "user", "content": prompt}]
+                                )
                             st.markdown("🧠 **GPT-4 리스크 분석 결과 (전체 기사 요약 기반)**:")
-                            st.warning(result)
+                            st.warning(response)
                             
                         except Exception as e:
                             st.error(f"❌ GPT 분석 중 오류 발생: {str(e)}")
@@ -64,11 +103,34 @@ with tab2:
                     st.markdown(f"🔗 URL: {video['url']}")
                     
                     try:
-                        title, desc = get_video_metadata(video['video_id'])
-                        transcript = get_transcript(video['video_id'], 'ko')
+                        video_response = youtube.videos().list(
+                            part="contentDetails",
+                            id=video['video_id']
+                        ).execute()
+                    
+                        duration_iso = video_response["items"][0]["contentDetails"]["duration"]
+                        duration = isodate.parse_duration(duration_iso)
+                        title, desc = duration.total_seconds()
                         
-                        summary = summarize_with_gpt(title, desc, transcript)
+                        try:
+                            transcript = YouTubeTranscriptApi.get_transcript(video['video_id'], languages='ko')
+                            text = " ".join([seg["text"] for seg in transcript])
+                            return text
+                        except Exception as e:
+                            return f"❌ 자막 불러오기 실패: {str(e)}"
                         
+                        prompt = f"""다음은 유튜브 영상의 제목과 설명과 자막이야:
+
+                            제목: {title}
+                            설명: {description}
+                            자막: {transcript}
+                            
+                            이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
+                            
+                        summary = client.chat.completions.create(
+                                model="gpt-4o",
+                                messages=[{"role": "user", "content": prompt}]
+                            )
                         st.text_area("영상 분석 내용", summary)
                     except Exception as e:
                         st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
