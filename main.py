@@ -4,6 +4,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
+import openai
 import isodate
 import assemblyai as aai
 
