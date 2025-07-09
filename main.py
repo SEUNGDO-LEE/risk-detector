@@ -3,7 +3,6 @@ import os
 from openai import OpenAI
 import streamlit as st
 
-
 st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wide")
 
 st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
@@ -13,7 +12,7 @@ os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 
-from content_loader import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video, detect_risk
+from content_generator import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video, detect_risk
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
@@ -52,7 +51,7 @@ with tab1:
                             
                         except Exception as e:
                             st.error(f"❌ GPT 분석 중 오류 발생: {str(e)}")
-                            
+
 with tab2:
     st.title("🎬 YouTube 영상 크롤링")
 
@@ -77,4 +76,3 @@ with tab2:
                         st.text_area("영상 분석 내용", summary)
                     except Exception as e:
                         st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
-                
