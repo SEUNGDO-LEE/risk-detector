@@ -1,4 +1,4 @@
-# content_loader.py
+# content_generator.py
 import os
 from openai import OpenAI
 import streamlit as st
@@ -11,16 +11,17 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from googleapiclient.discovery import build
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-aai.settings.api_key = os.environ.get["ASSEMBLY_API_KEY"] 
+
+aai.settings.api_key = os.environ.get("ASSEMBLY_API_KEY")
 
 @st.cache_resource
 def get_youtube_api():
-    return build("youtube", "v3", developerKey=os.environ.get["YOUTUBE_KEY"])
+    return build("youtube", "v3", developerKey=os.environ.get("YOUTUBE_KEY"))
+
 
 youtube = get_youtube_api()
-
 def get_video_metadata(video_id):
-    get_youtube_api()
+   
     res = youtube.videos().list(part="snippet", id=video_id).execute()
     snippet = res["items"][0]["snippet"]
     return snippet["title"], snippet["description"]
@@ -43,21 +44,19 @@ def summarize_with_gpt(title, description, transcript):
     )
     return chat_completion.choices[0].message.content
 
-def detect_risk(text: str) -> str:
+def detect_risk(text):
     prompt = (
         "다음 콘텐츠에서 사회적, 정치적, 윤리적 또는 법적 리스크 요소를 요약해줘. "
         "리스크가 있는 경우 해당 문장을 직접 인용해서 표시해줘.\n\n"
         f"{text}"
     )
     
-    
     chat_completion = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
-    
     return chat_completion.choices[0].message.content
-    
+
 def get_transcript(video_id, lang_list=["ko", "en"]):
     try:
         transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=lang_list)
