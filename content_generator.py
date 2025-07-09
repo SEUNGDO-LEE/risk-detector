@@ -10,6 +10,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 # pip install --upgrade google-api-python-client
 from googleapiclient.discovery import build
 
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 aai.settings.api_key = os.environ.get("ASSEMBLY_API_KEY")
