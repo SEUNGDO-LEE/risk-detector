@@ -7,7 +7,6 @@ st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wi
 st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 
 # API 키 설정
-os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 
