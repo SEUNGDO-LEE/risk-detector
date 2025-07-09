@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-import openai
+from openai import OpenAI
 import isodate
 import assemblyai as aai
 import feedparser
@@ -20,13 +20,13 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
-openai.api_key = os.environ.get("OPENAI_API_KEY") 
+
 aai.settings.api_key = os.environ.get("ASSEMBLY_API_KEY")
 
 @st.cache_resource
 def get_youtube_api():
     return build("youtube", "v3", developerKey=os.environ.get("YOUTUBE_KEY"))
-#client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def search_youtube_video(query):
         search_response = youtube.search().list(
@@ -110,10 +110,10 @@ with tab1:
                                 prompt = (
                                     "다음 콘텐츠에서 사회적, 정치적, 윤리적 또는 법적 리스크 요소를 요약해줘. "
                                     "리스크가 있는 경우 해당 문장을 직접 인용해서 표시해줘.\n\n"
-                                    f"{text}"
+                                    f"{all_summaries}"
                                 )
                                 
-                                response = openai.ChatCompletion.create(
+                                response = client.chat.completions.create(
                                     model="gpt-4o",
                                     messages=[{"role": "user", "content": prompt}]
                                 )
@@ -164,7 +164,7 @@ with tab2:
                             
                             이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
                             
-                        summary = openai.ChatCompletion.create(
+                        summary = client.chat.completions.create(
                                 model="gpt-4o",
                                 messages=[{"role": "user", "content": prompt}]
                             )
