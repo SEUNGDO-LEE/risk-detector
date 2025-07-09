@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-from openai import OpenAI
+import openai
 import isodate
 import assemblyai as aai
 import feedparser
@@ -20,13 +20,14 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 aai.settings.api_key = os.environ.get("ASSEMBLY_API_KEY")
 
 @st.cache_resource
 def get_youtube_api():
     return build("youtube", "v3", developerKey=os.environ.get("YOUTUBE_KEY"))
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
 
 def search_youtube_video(query):
         search_response = youtube.search().list(
@@ -113,12 +114,12 @@ with tab1:
                                     f"{all_summaries}"
                                 )
                                 
-                                response = client.chat.completions.create(
+                                risk_response = openai.chat.completions.create(
                                     model="gpt-4o",
                                     messages=[{"role": "user", "content": prompt}]
                                 )
                             st.markdown("🧠 **GPT-4 리스크 분석 결과 (전체 기사 요약 기반)**:")
-                            st.warning(response)
+                            st.warning(risk_response)
                             
                         except Exception as e:
                             st.error(f"❌ GPT 분석 중 오류 발생: {str(e)}")
@@ -164,7 +165,7 @@ with tab2:
                             
                             이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
                             
-                        summary = client.chat.completions.create(
+                        summary = openai.chat.completions.create(
                                 model="gpt-4o",
                                 messages=[{"role": "user", "content": prompt}]
                             )
