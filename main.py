@@ -1,6 +1,5 @@
 #main.py
 import os
-from openai import OpenAI
 import streamlit as st
 
 st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wide")
@@ -13,8 +12,6 @@ os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 
 from content_generator import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video, detect_risk
-
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
 
@@ -51,7 +48,7 @@ with tab1:
                             
                         except Exception as e:
                             st.error(f"❌ GPT 분석 중 오류 발생: {str(e)}")
-
+                           
 with tab2:
     st.title("🎬 YouTube 영상 크롤링")
 
