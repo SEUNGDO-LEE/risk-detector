@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-from openai import OpenAI
+import openai
 import isodate
 import assemblyai as aai
 
@@ -16,7 +16,7 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+#client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
 
@@ -77,7 +77,7 @@ with tab1:
                                     f"{text}"
                                 )
                                 
-                                response = client.chat.completions.create(
+                                response = openai.ChatCompletion.create(
                                     model="gpt-4o",
                                     messages=[{"role": "user", "content": prompt}]
                                 )
@@ -127,7 +127,7 @@ with tab2:
                             
                             이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
                             
-                        summary = client.chat.completions.create(
+                        summary = openai.ChatCompletion.create(
                                 model="gpt-4o",
                                 messages=[{"role": "user", "content": prompt}]
                             )
