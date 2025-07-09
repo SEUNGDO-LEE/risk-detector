@@ -16,6 +16,8 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
+openai.api_key = os.environ.get("OPENAI_API_KEY") 
+
 #client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
