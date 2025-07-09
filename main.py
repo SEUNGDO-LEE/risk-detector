@@ -13,8 +13,7 @@ os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 
-from content_loader import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video
-from risk_detector import detect_risk
+from content_loader import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video, detect_risk
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
