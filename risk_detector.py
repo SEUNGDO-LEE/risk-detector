@@ -19,15 +19,3 @@ def detect_risk(text: str) -> str:
     
     return chat_completion.choices[0].message.content
 
-def generate_response(user_question: str, content_context: str) -> str:
-    prompt = (
-        "아래 콘텐츠 내용을 참고하여 사용자의 질문에 대해 중립적이고 신뢰성 있는 답변을 해줘.\n\n"
-        f"[콘텐츠 요약]: {content_context}\n"
-        f"[질문]: {user_question}"
-    )
-    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return response.choices[0].message.content
