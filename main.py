@@ -115,15 +115,15 @@ with tab2:
                         try:
                             transcript = YouTubeTranscriptApi.get_transcript(video['video_id'], languages='ko')
                             text = " ".join([seg["text"] for seg in transcript])
-                            return text
+                            result_transcript = text
                         except Exception as e:
-                            return f"❌ 자막 불러오기 실패: {str(e)}"
+                            st.error(f"❌ 자막 불러오기 실패: {str(e)}")
                         
                         prompt = f"""다음은 유튜브 영상의 제목과 설명과 자막이야:
 
                             제목: {title}
                             설명: {description}
-                            자막: {transcript}
+                            자막: {result_transcript}
                             
                             이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
                             
