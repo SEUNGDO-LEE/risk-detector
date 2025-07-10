@@ -11,8 +11,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 # pip install --upgrade google-api-python-client
 from googleapiclient.discovery import build
 
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
-openai_api_key = os.environ.get("OPENAI_API_KEY")
+openai_api_key =  st.secrets["OPENAI_KEY"]
 
 @st.cache_resource
 def get_youtube_api():
