@@ -42,7 +42,7 @@ def summarize_with_gpt(title, description, transcript):
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
-    return chat_completion
+    return chat_completion.choices[0].message.content
 
 def detect_risk(text):
     prompt = (
@@ -55,7 +55,7 @@ def detect_risk(text):
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
-    return chat_completion
+    return chat_completion.choices[0].message.content
 
 def get_transcript(video_id, lang_list=["ko", "en"]):
     try:
