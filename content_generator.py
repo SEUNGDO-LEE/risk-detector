@@ -1,9 +1,9 @@
 # content_generator.py
 import os
-import openai
 import streamlit as st
 import isodate
 import assemblyai as aai
+from langchain_openai.chat_models import ChatOpenAI
 
 import feedparser
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -11,13 +11,17 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from googleapiclient.discovery import build
 
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+openai_api_key = st.sidebar.text_input(os.environ.get("OPENAI_API_KEY"), type="password")
 aai.settings.api_key = os.environ.get("ASSEMBLY_API_KEY")
 
 @st.cache_resource
 def get_youtube_api():
     return build("youtube", "v3", developerKey=os.environ.get("YOUTUBE_KEY"))
 
+def generate_response(input_text):
+    model = ChatOpenAI(model="gpt-4o", temperature=0.7, api_key=openai_api_key)
+    response = model.invoke(input_text)
+    return response.content
 
 youtube = get_youtube_api()
 def get_video_metadata(video_id):
@@ -37,12 +41,13 @@ def summarize_with_gpt(title, description, transcript):
 
 이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
     
-    
-    chat_completion = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return chat_completion.choices[0].message.content
+    return generate_response(prompt)
+
+    #chat_completion = openai.chat.completions.create(
+    #    model="gpt-4o",
+    #    messages=[{"role": "user", "content": prompt}]
+    #)
+    #return chat_completion.choices[0].message.content
 
 def detect_risk(text):
     prompt = (
@@ -51,11 +56,12 @@ def detect_risk(text):
         f"{text}"
     )
     
-    chat_completion = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return chat_completion.choices[0].message.content
+    return generate_response(prompt)
+    #chat_completion = openai.chat.completions.create(
+    #    model="gpt-4o",
+    #    messages=[{"role": "user", "content": prompt}]
+    #)
+    #return chat_completion.choices[0].message.content
 
 def get_transcript(video_id, lang_list=["ko", "en"]):
     try:
