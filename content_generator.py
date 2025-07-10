@@ -4,7 +4,6 @@ import streamlit as st
 #import isodate
 import re
 from datetime import timedelta
-import assemblyai as aai
 from langchain_openai.chat_models import ChatOpenAI
 
 import feedparser
@@ -14,7 +13,6 @@ from googleapiclient.discovery import build
 
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
 openai_api_key = st.sidebar.text_input(os.environ.get("OPENAI_API_KEY"), type="password")
-aai.settings.api_key = os.environ.get("ASSEMBLY_API_KEY")
 
 @st.cache_resource
 def get_youtube_api():
