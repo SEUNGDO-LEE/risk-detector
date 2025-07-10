@@ -4,7 +4,7 @@ import streamlit as st
 #import isodate
 import re
 from datetime import timedelta
-from langchain_openai.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 import feedparser
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -12,7 +12,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from googleapiclient.discovery import build
 
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
-openai_api_key = st.sidebar.text_input(os.environ.get("OPENAI_API_KEY"), type="password")
+openai_api_key = os.environ.get("OPENAI_API_KEY")
 
 @st.cache_resource
 def get_youtube_api():
