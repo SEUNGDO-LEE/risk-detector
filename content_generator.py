@@ -1,7 +1,9 @@
 # content_generator.py
 import os
 import streamlit as st
-import isodate
+#import isodate
+import re
+from datetime import timedelta
 import assemblyai as aai
 from langchain_openai.chat_models import ChatOpenAI
 
@@ -98,6 +100,29 @@ def fetch_filtered_rss_articles(keyword_list):
 
     return results
 
+def parse_iso8601_duration(duration_str):
+    # 정규표현식 기반 ISO 8601 duration 파서
+    pattern = re.compile(
+        r'^P'                        # 시작 P
+        r'(?:(\d+)D)?'               # 일
+        r'(?:T'                      # T 다음에 시간 정보
+        r'(?:(\d+)H)?'               # 시
+        r'(?:(\d+)M)?'               # 분
+        r'(?:(\d+(?:\.\d+)?)S)?'     # 초
+        r')?$'
+    )
+    match = pattern.match(duration_str)
+    if not match:
+        raise ValueError(f"Invalid ISO 8601 duration: {duration_str}")
+    
+    days, hours, minutes, seconds = match.groups()
+    return timedelta(
+        days=int(days) if days else 0,
+        hours=int(hours) if hours else 0,
+        minutes=int(minutes) if minutes else 0,
+        seconds=float(seconds) if seconds else 0,
+    )
+    
 def get_video_duration_seconds(video_id):
     
     response = youtube.videos().list(
@@ -106,7 +131,8 @@ def get_video_duration_seconds(video_id):
     ).execute()
 
     duration_iso = response["items"][0]["contentDetails"]["duration"]
-    duration = isodate.parse_duration(duration_iso)
+    #duration = isodate.parse_duration(duration_iso)
+    duration = parse_iso8601_duration(duration_iso)
     return duration.total_seconds()
 
 def search_youtube_video(query):
