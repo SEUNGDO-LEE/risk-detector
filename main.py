@@ -9,7 +9,6 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 # API 키 설정
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
-os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 
 from content_generator import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video, detect_risk
 
