@@ -67,7 +67,7 @@ with tab2:
                         title, desc = get_video_metadata(video['video_id'])
                         transcript = get_transcript(video['video_id'], 'ko')
                         
-                        summary = summarize_with_gpt(title, desc, transcript)
+                        #summary = summarize_with_gpt(title, desc, transcript)
                         
                         st.text_area("영상 분석 내용", summary)
                     except Exception as e:
