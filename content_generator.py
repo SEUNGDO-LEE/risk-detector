@@ -4,23 +4,23 @@ import streamlit as st
 #import isodate
 import re
 from datetime import timedelta
-from langchain_openai import ChatOpenAI
+#from langchain_openai import ChatOpenAI
 
 import feedparser
 from youtube_transcript_api import YouTubeTranscriptApi
 # pip install --upgrade google-api-python-client
 from googleapiclient.discovery import build
 
-openai_api_key =  st.secrets["OPENAI_KEY"]
+#openai_api_key =  st.secrets["OPENAI_KEY"]
 
-@st.cache_resource
-def get_youtube_api():
-    return build("youtube", "v3", developerKey=os.environ.get("YOUTUBE_KEY"))
+#@st.cache_resource
+#def get_youtube_api():
+#    return build("youtube", "v3", developerKey=os.environ.get("YOUTUBE_KEY"))
 
-def generate_response(input_text):
-    model = ChatOpenAI(model="gpt-4o", temperature=0.7, api_key=openai_api_key)
-    response = model.invoke(input_text)
-    return response.content
+#def generate_response(input_text):
+#    model = ChatOpenAI(model="gpt-4o", temperature=0.7, api_key=openai_api_key)
+#    response = model.invoke(input_text)
+#    return response.content
 
 youtube = get_youtube_api()
 def get_video_metadata(video_id):
@@ -40,7 +40,7 @@ def summarize_with_gpt(title, description, transcript):
 
 이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
     
-    return generate_response(prompt)
+  #  return generate_response(prompt)
 
     #chat_completion = openai.chat.completions.create(
     #    model="gpt-4o",
@@ -55,7 +55,7 @@ def detect_risk(text):
         f"{text}"
     )
     
-    return generate_response(prompt)
+   # return generate_response(prompt)
     #chat_completion = openai.chat.completions.create(
     #    model="gpt-4o",
     #    messages=[{"role": "user", "content": prompt}]
