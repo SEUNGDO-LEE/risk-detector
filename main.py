@@ -42,8 +42,8 @@ with tab1:
                             if len(all_summaries.split()) > MAX_TOKENS:
                                 all_summaries = " ".join(all_summaries.split()[:MAX_TOKENS])
                             #result = detect_risk(all_summaries)
-                            st.markdown("🧠 **GPT-4 리스크 분석 결과 (전체 기사 요약 기반)**:")
-                            st.warning(result)
+                            #st.markdown("🧠 **GPT-4 리스크 분석 결과 (전체 기사 요약 기반)**:")
+                            #st.warning(result)
                             
                         except Exception as e:
                             st.error(f"❌ GPT 분석 중 오류 발생: {str(e)}")
@@ -69,6 +69,6 @@ with tab2:
                         
                         #summary = summarize_with_gpt(title, desc, transcript)
                         
-                        st.text_area("영상 분석 내용", summary)
+                        #st.text_area("영상 분석 내용", summary)
                     except Exception as e:
                         st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
