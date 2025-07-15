@@ -7,10 +7,10 @@ st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wi
 st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 
 # API 키 설정
-#os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
+os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 
-from content_generator import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video
+from content_generator import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video, detect_risk
 
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
 
@@ -41,9 +41,9 @@ with tab1:
                             MAX_TOKENS = 3000
                             if len(all_summaries.split()) > MAX_TOKENS:
                                 all_summaries = " ".join(all_summaries.split()[:MAX_TOKENS])
-                            #result = detect_risk(all_summaries)
-                            #st.markdown("🧠 **GPT-4 리스크 분석 결과 (전체 기사 요약 기반)**:")
-                            #st.warning(result)
+                            result = detect_risk(all_summaries)
+                            st.markdown("🧠 **GPT-4 리스크 분석 결과 (전체 기사 요약 기반)**:")
+                            st.warning(result)
                             
                         except Exception as e:
                             st.error(f"❌ GPT 분석 중 오류 발생: {str(e)}")
@@ -67,8 +67,8 @@ with tab2:
                         title, desc = get_video_metadata(video['video_id'])
                         transcript = get_transcript(video['video_id'], 'ko')
                         
-                        #summary = summarize_with_gpt(title, desc, transcript)
+                        summary = summarize_with_gpt(title, desc, transcript)
                         
-                        #st.text_area("영상 분석 내용", summary)
+                        st.text_area("영상 분석 내용", summary)
                     except Exception as e:
                         st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
